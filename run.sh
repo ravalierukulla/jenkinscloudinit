@@ -1,14 +1,23 @@
 #! /bin/bash
 
+# Install Docker
 apt-get update
-apt-get -y install docker
+apt-get -y install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 
-docker build -f jenkins-setup/Dockerfile -t jenkinsimage .
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+apt-key fingerprint 0EBFCD88
 
-docker run -p 8080:8080 -p 5000:5000 -v 
+add-apt-repository \
+"deb [arch=amd64] https://download.docker.com/linux/debian \
+$(lsb_release -cs) \
+stable"
 
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock \
-              -v /path/to/your/jenkins/home:/var/jenkins_home \
-              -p 8080:8080 \
-              
+apt-get update
+apt-get -y install docker-ce docker-ce-cli containerd.io
 
+# Run Jenkins image
+docker build -t jenkinsimage .
+JENKINS_PASS=$(az keyvault secret show --vault-name "ptc-cicd-kvt" --name jenkins-pass --query 'value' -o tsv)
+docker run -d \
+-e JENKINS_PASS="${JENKINS_PASS}" \
+-v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 jenkinsimage:latest
