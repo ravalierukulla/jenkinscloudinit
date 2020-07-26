@@ -1,4 +1,5 @@
 #! /bin/bash
+set -exuo pipefail
 
 # Install Docker
 apt-get update
