@@ -18,6 +18,7 @@ apt-get -y install docker-ce docker-ce-cli containerd.io
 
 # Run Jenkins image
 docker build -t jenkinsimage .
+az login --identity
 JENKINS_PASS=$(az keyvault secret show --vault-name "ptc-cicd-dev-kvt" --name jenkins-pass --query 'value' -o tsv)
 docker run -d \
 -e JENKINS_PASS="${JENKINS_PASS}" \
